@@ -277,7 +277,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.pets, size: 40, color: AppColors.textSecondary.withOpacity(0.4)),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    gradient: AppGradients.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset('assets/icon.png', height: 40, width: 40),
+                ),
                 const SizedBox(height: 12),
                 const Text("You haven't added any dogs yet", style: TextStyle(color: AppColors.textSecondary)),
               ],
@@ -304,10 +311,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        gradient: AppGradients.primary,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.pets, color: AppColors.primary, size: 20),
+                      child: Image.asset('assets/icon.png', height: 20, width: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(

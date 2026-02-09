@@ -63,12 +63,12 @@ class _NavBarState extends State<NavBar> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
                     gradient: AppGradients.primary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.pets, color: Colors.white, size: 20),
+                  child: Image.asset('assets/icon.png', height: 24, width: 24),
                 ),
                 const SizedBox(width: 12),
                 const Text(

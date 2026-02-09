@@ -24,15 +24,15 @@ class LandingPage extends StatelessWidget {
                 children: [
                   // Logo
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
                       gradient: AppGradients.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.pets,
-                      color: Colors.white,
-                      size: 20,
+                    child: Image.asset(
+                      'assets/icon.png',
+                      height: 24,
+                      width: 24,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -254,7 +254,7 @@ class LandingPage extends StatelessWidget {
                                 title: 'Dog Directory',
                                 description:
                                     'Browse dogs for adoption with health status filters.',
-                                icon: Icons.pets,
+                                assetPath: 'assets/icon.png',
                                 color: AppColors.accent,
                               ),
                               _FeatureCard(
@@ -333,14 +333,14 @@ class LandingPage extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                        decoration: const BoxDecoration(
+                          gradient: AppGradients.primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.pets,
-                          color: AppColors.primary,
-                          size: 20,
+                        child: Image.asset(
+                          'assets/icon.png',
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -406,14 +406,14 @@ class LandingPage extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: AppGradients.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.pets,
-                        size: 40,
-                        color: Colors.white,
+                      child: Image.asset(
+                        'assets/icon.png',
+                        width: 40,
+                        height: 40,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -521,15 +521,17 @@ class _FeatureIcon extends StatelessWidget {
 class _FeatureCard extends StatelessWidget {
   final String title;
   final String description;
-  final IconData icon;
+  final IconData? icon;
+  final String? assetPath;
   final Color color;
 
   const _FeatureCard({
     required this.title,
     required this.description,
-    required this.icon,
+    this.icon,
+    this.assetPath,
     required this.color,
-  });
+  }) : assert(icon != null || assetPath != null);
 
   @override
   Widget build(BuildContext context) {
@@ -553,10 +555,13 @@ class _FeatureCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: assetPath != null ? null : color.withOpacity(0.1),
+              gradient: assetPath != null ? AppGradients.primary : null,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: assetPath != null
+                ? Image.asset(assetPath!, height: 24, width: 24)
+                : Icon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 16),
           Text(
@@ -780,15 +785,12 @@ class _MobileAppSection extends StatelessWidget {
                   Container(
                     width: 100,
                     height: 100,
+                    padding: const EdgeInsets.all(24),
                     decoration: const BoxDecoration(
                       gradient: AppGradients.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.qr_code_scanner,
-                      color: Colors.white,
-                      size: 48,
-                    ),
+                    child: Image.asset('assets/icon.png'),
                   ),
                   const SizedBox(height: 32),
                   _buildPhoneFeatureRow(Icons.add_a_photo, 'Photo Upload'),

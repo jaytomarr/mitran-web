@@ -31,7 +31,14 @@ class DogDetailPage extends ConsumerWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.pets, size: 48, color: AppColors.textSecondary.withOpacity(0.4)),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          gradient: AppGradients.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset('assets/icon.png', height: 48, width: 48),
+                      ),
                       const SizedBox(height: 16),
                       const Text('Mitran Record not found', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
                     ],
@@ -80,7 +87,14 @@ class DogDetailPage extends ConsumerWidget {
                                 Container(
                                   color: const Color(0xFFF8F7FC),
                                   child: Center(
-                                    child: Icon(Icons.pets, size: 64, color: AppColors.textSecondary.withOpacity(0.3)),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: const BoxDecoration(
+                                        gradient: AppGradients.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.asset('assets/icon.png', height: 64, width: 64),
+                                    ),
                                   ),
                                 ),
                             ],

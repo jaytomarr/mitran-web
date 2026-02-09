@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final router = createRouter();
     return MaterialApp.router(
-      title: 'Mitran Web',
+      title: 'Mitran',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -47,14 +47,19 @@ class MyApp extends StatelessWidget {
         ),
         cardTheme: CardThemeData(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           color: AppColors.surface,
           margin: EdgeInsets.zero,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: const Color(0xFFF5F5FA),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 18,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -92,16 +97,27 @@ class MyApp extends StatelessWidget {
             backgroundColor: AppColors.primaryDark,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primaryDark,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-            textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -109,8 +125,13 @@ class MyApp extends StatelessWidget {
             foregroundColor: AppColors.primaryDark,
             side: const BorderSide(color: AppColors.primaryDark, width: 2),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         chipTheme: ChipThemeData(
@@ -119,25 +140,91 @@ class MyApp extends StatelessWidget {
           secondarySelectedColor: AppColors.primary,
           disabledColor: Colors.grey.withOpacity(0.2),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.text),
-          secondaryLabelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          labelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.text,
+          ),
+          secondaryLabelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
           side: BorderSide.none,
         ),
-        dividerTheme: const DividerThemeData(color: Color(0xFFE0E0E0), thickness: 1, space: 1),
+        dividerTheme: const DividerThemeData(
+          color: Color(0xFFE0E0E0),
+          thickness: 1,
+          space: 1,
+        ),
         textTheme: const TextTheme(
-          displayLarge: TextStyle(fontSize: 56, fontWeight: FontWeight.w800, color: AppColors.primaryDark, height: 1.1),
-          displayMedium: TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: AppColors.primaryDark, height: 1.1),
-          displaySmall: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
-          headlineLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
-          headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
-          headlineSmall: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.primaryDark),
-          titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.primaryDark),
-          titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.text),
-          titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text),
-          bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.text, height: 1.5),
-          bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.textSecondary, height: 1.5),
-          bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.textSecondary),
+          displayLarge: TextStyle(
+            fontSize: 56,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primaryDark,
+            height: 1.1,
+          ),
+          displayMedium: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primaryDark,
+            height: 1.1,
+          ),
+          displaySmall: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryDark,
+          ),
+          headlineLarge: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryDark,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryDark,
+          ),
+          headlineSmall: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primaryDark,
+          ),
+          titleLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primaryDark,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+          ),
+          titleSmall: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            color: AppColors.text,
+            height: 1.5,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+          bodySmall: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+          ),
         ),
       ),
       routerDelegate: router.routerDelegate,

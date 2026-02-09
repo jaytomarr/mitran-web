@@ -40,15 +40,15 @@ class DirectoryPage extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
+                                gradient: AppGradients.primary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
-                                Icons.pets,
-                                color: AppColors.primary,
-                                size: 20,
+                              child: Image.asset(
+                                'assets/icon.png',
+                                height: 24,
+                                width: 24,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -180,10 +180,17 @@ class DirectoryPage extends ConsumerWidget {
                           ),
                           child: Column(
                             children: [
-                              Icon(
-                                Icons.pets,
-                                size: 48,
-                                color: AppColors.textSecondary.withOpacity(0.4),
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: const BoxDecoration(
+                                  gradient: AppGradients.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Image.asset(
+                                  'assets/icon.png',
+                                  width: 48,
+                                  height: 48,
+                                ),
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -349,10 +356,17 @@ class _DogCardState extends State<_DogCard> {
                           ),
                         )
                       : Center(
-                          child: Icon(
-                            Icons.pets,
-                            size: 40,
-                            color: AppColors.textSecondary.withOpacity(0.3),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: const BoxDecoration(
+                              gradient: AppGradients.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.asset(
+                              'assets/icon.png',
+                              height: 24,
+                              width: 24,
+                            ),
                           ),
                         ),
                 ),
