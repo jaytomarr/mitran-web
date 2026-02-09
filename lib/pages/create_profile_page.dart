@@ -84,67 +84,107 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Your Guardian Profile')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Create Your Guardian Profile'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.text,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
-                const SizedBox(height: 4),
-                const Text('This is how you\'ll be known in the Mitran community. Your contact info will only be shared when you list a dog for adoption.'),
-                const SizedBox(height: 12),
-                AppFormTextField(
-                  controller: _usernameController,
-                  labelText: 'Public Username (e.g., "DelhiDogGuardian")',
-                  onChanged: _checkUsername,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Username required';
-                    if (!_usernameAvailable) return 'Username not available';
-                    if (v.trim().length < 3 || v.trim().length > 20) return '3-20 characters';
-                    return null;
-                  },
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: GradientBorderCard(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Welcome, Guardian!', style: Theme.of(context).textTheme.headlineSmall),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'This is how you\'ll be known in the Mitran community. Your contact info will only be shared when you list a dog for adoption.',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                      if (_error != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(_error!, style: const TextStyle(color: AppColors.error)),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      AppFormTextField(
+                        controller: _usernameController,
+                        labelText: 'Public Username (e.g., "DelhiDogGuardian")',
+                        onChanged: _checkUsername,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Username required';
+                          if (!_usernameAvailable) return 'Username not available';
+                          if (v.trim().length < 3 || v.trim().length > 20) return '3-20 characters';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(children: [
+                        AccentButton(text: 'Upload Profile Picture', onPressed: _pickImage),
+                        const SizedBox(width: 16),
+                        if (_imageBytes != null)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(_imageBytes!, width: 64, height: 64, fit: BoxFit.cover),
+                          ),
+                      ]),
+                      const SizedBox(height: 16),
+                      AppFormTextField(
+                        controller: _phoneController,
+                        labelText: 'Contact Phone (for adoption inquiries only)',
+                        keyboardType: TextInputType.phone,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Contact phone is required';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: AppFormTextField(controller: _cityController, labelText: 'City')),
+                          const SizedBox(width: 16),
+                          Expanded(child: AppFormTextField(controller: _areaController, labelText: 'Area')),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _userType,
+                        items: const [
+                          DropdownMenuItem(value: 'Volunteer', child: Text('Volunteer')),
+                          DropdownMenuItem(value: 'Feeder', child: Text('Feeder')),
+                          DropdownMenuItem(value: 'NGO Member', child: Text('NGO Member')),
+                          DropdownMenuItem(value: 'Citizen', child: Text('Citizen')),
+                          DropdownMenuItem(value: 'Other', child: Text('Other')),
+                        ],
+                        onChanged: (v) => setState(() => _userType = v ?? 'Volunteer'),
+                        decoration: const InputDecoration(labelText: 'User Type'),
+                      ),
+                      const SizedBox(height: 32),
+                      GradientButton(
+                        text: 'Become a Guardian',
+                        onPressed: _loading ? null : _submit,
+                        fullWidth: true,
+                        loading: _loading,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Row(children: [
-                  AccentButton(text: 'Upload Profile Picture', onPressed: _pickImage),
-                  const SizedBox(width: 12),
-                  if (_imageBytes != null)
-                    SizedBox(width: 64, height: 64, child: Image.memory(_imageBytes!, fit: BoxFit.cover)),
-                ]),
-                const SizedBox(height: 12),
-                AppFormTextField(
-                  controller: _phoneController,
-                  labelText: 'Contact Phone (for adoption inquiries only)',
-                  keyboardType: TextInputType.phone,
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Contact phone is required';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                AppFormTextField(controller: _cityController, labelText: 'City'),
-                const SizedBox(height: 12),
-                AppFormTextField(controller: _areaController, labelText: 'Area'),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _userType,
-                  items: const [
-                    DropdownMenuItem(value: 'Volunteer', child: Text('Volunteer')),
-                    DropdownMenuItem(value: 'Feeder', child: Text('Feeder')),
-                    DropdownMenuItem(value: 'NGO Member', child: Text('NGO Member')),
-                    DropdownMenuItem(value: 'Citizen', child: Text('Citizen')),
-                    DropdownMenuItem(value: 'Other', child: Text('Other')),
-                  ],
-                  onChanged: (v) => setState(() => _userType = v ?? 'Volunteer'),
-                  decoration: const InputDecoration(labelText: 'User Type'),
-                ),
-                const SizedBox(height: 20),
-                GradientButton(text: 'Become a Guardian', onPressed: _loading ? null : _submit, fullWidth: true, loading: _loading),
-              ],
+              ),
             ),
           ),
         ),

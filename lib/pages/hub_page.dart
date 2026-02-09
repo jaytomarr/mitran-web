@@ -6,6 +6,7 @@ import '../widgets/design_system.dart';
 import '../providers/providers.dart';
 import '../models/post_model.dart';
 import '../services/firestore_service.dart';
+import 'package:intl/intl.dart';
 
 class HubPage extends ConsumerStatefulWidget {
   const HubPage({super.key});
@@ -49,117 +50,284 @@ class _HubPageState extends ConsumerState<HubPage> {
     final AsyncValue<List<PostModel>> posts = authReady.isLoading
         ? const AsyncValue<List<PostModel>>.loading()
         : ref.watch(postsProvider);
+    
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F7FC),
       appBar: const NavBar(),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: FadeSlideIn(
-                child: ResponsiveContainer(
-                  maxWidth: 800,
-                  child: GradientBorderCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppTextField(controller: _controller, maxLength: 500, labelText: "What's happening, Guardian? Share an update or ask a question."),
-                        const SizedBox(height: 8),
-                        GradientButton(text: 'Post', onPressed: _loading ? null : _createPost, loading: _loading),
-                      ],
-                    ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Share Post Card
+                  _SharePostCard(
+                    controller: _controller,
+                    loading: _loading,
+                    onPost: _createPost,
                   ),
-                ),
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: FadeSlideIn(
-                child: ResponsiveContainer(
-                  maxWidth: 800,
-                  child: posts.when(
-                data: (items) {
-                  if (items.isEmpty) {
-                    return const Center(child: Text('No posts yet'));
-                  }
-                  return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final p = items[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Card(
-                          elevation: 6,
-                          shadowColor: Colors.black.withOpacity(0.12),
-                          surfaceTintColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: Colors.grey.shade300),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Posts List
+                  posts.when(
+                    data: (items) {
+                      if (items.isEmpty) {
+                        return Container(
+                          padding: const EdgeInsets.all(48),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.border),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      foregroundImage: p.author.profilePictureUrl.isNotEmpty ? NetworkImage(p.author.profilePictureUrl) : null,
-                                      child: Text(p.author.username.isNotEmpty ? p.author.username[0].toUpperCase() : '?'),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(child: Text(p.author.username, style: Theme.of(context).textTheme.titleMedium)),
-                                    Text('${p.timestamp.hour}:${p.timestamp.minute.toString().padLeft(2, '0')}', style: Theme.of(context).textTheme.bodySmall),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Text(p.content, style: Theme.of(context).textTheme.bodyMedium),
-                              ],
+                          child: Column(
+                            children: [
+                              Icon(Icons.forum_outlined, size: 48, color: AppColors.textSecondary.withOpacity(0.5)),
+                              const SizedBox(height: 16),
+                              const Text('No posts yet', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+                              const SizedBox(height: 8),
+                              const Text('Be the first to share an update!', style: TextStyle(color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        );
+                      }
+                      return Column(
+                        children: items.map((p) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: _PostCard(post: p),
+                        )).toList(),
+                      );
+                    },
+                    loading: () => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(48),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      ),
+                    ),
+                    error: (e, _) {
+                      final msg = e.toString();
+                      final isPerm = msg.contains('permission-denied');
+                      return Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.error.withOpacity(0.2)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.error_outline, color: AppColors.error, size: 40),
+                            const SizedBox(height: 16),
+                            Text(
+                              isPerm ? 'Missing Firestore permissions.' : 'Error loading posts',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.error),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            GradientButton(
+                              text: 'Retry',
+                              onPressed: () async {
+                                final user = FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  try { await user.getIdToken(true); } catch (_) {}
+                                }
+                                ref.invalidate(postsProvider);
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) {
-                  final msg = e.toString();
-                  final isPerm = msg.contains('permission-denied');
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          isPerm
-                              ? 'Missing or insufficient Firestore permissions.'
-                              : msg,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user != null) {
-                              try {
-                                await user.getIdToken(true);
-                              } catch (_) {}
-                            }
-                            ref.invalidate(postsProvider);
-                          },
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
                   ),
-                ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _SharePostCard extends StatelessWidget {
+  final TextEditingController controller;
+  final bool loading;
+  final VoidCallback onPost;
+
+  const _SharePostCard({
+    required this.controller,
+    required this.loading,
+    required this.onPost,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.edit_note, color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Share an Update',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: controller,
+            maxLength: 500,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: "What's happening, Guardian?",
+              hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.6)),
+              filled: true,
+              fillColor: const Color(0xFFF8F7FC),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.all(16),
+              counterStyle: const TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GradientButton(
+              text: 'Post',
+              onPressed: loading ? null : onPost,
+              loading: loading,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostCard extends StatelessWidget {
+  final PostModel post;
+  const _PostCard({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    final timeStr = DateFormat('MMM d').format(post.timestamp);
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Tag + Author Row
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              // Tag chip
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const Text(
+                  'Update',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text),
+                ),
+              ),
+              // Author chip
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 10,
+                      backgroundColor: AppColors.primary,
+                      backgroundImage: post.author.profilePictureUrl.isNotEmpty
+                          ? NetworkImage(post.author.profilePictureUrl)
+                          : null,
+                      child: post.author.profilePictureUrl.isEmpty
+                          ? Text(
+                              post.author.username.isNotEmpty ? post.author.username[0].toUpperCase() : '?',
+                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      post.author.username.length > 12 
+                          ? '${post.author.username.substring(0, 12)}...' 
+                          : post.author.username,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.text),
+                    ),
+                  ],
+                ),
+              ),
+              // Time
+              Text(
+                timeStr,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Content
+          Text(
+            post.content,
+            style: const TextStyle(
+              fontSize: 16,
+              color: AppColors.text,
+              height: 1.5,
+            ),
+          ),
+        ],
       ),
     );
   }

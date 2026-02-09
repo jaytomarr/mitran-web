@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/prediction.dart';
+import 'design_system.dart';
 
 class ResultCard extends StatelessWidget {
   final Prediction prediction;
@@ -11,73 +12,141 @@ class ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    prediction.title,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: prediction.confidenceColor,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    '${prediction.confidence.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              prediction.description,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 16),
-            _buildSection(icon: Icons.medical_services, title: 'Symptoms', items: prediction.symptoms, color: Colors.orange),
-            const SizedBox(height: 16),
-            _buildSection(icon: Icons.healing, title: 'Treatments', items: prediction.treatments, color: Colors.blue),
-            const SizedBox(height: 16),
-            _buildSection(icon: Icons.home, title: 'Home Care', items: prediction.homecare, color: Colors.green),
-            if (prediction.note.isNotEmpty) ...[
-              const SizedBox(height: 16),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber.shade200),
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Row(
+                child: const Icon(Icons.analytics_outlined, color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: Colors.amber.shade700, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        prediction.note,
-                        style: TextStyle(fontSize: 14, color: Colors.amber.shade900),
+                    Text(
+                      prediction.title,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: prediction.confidenceColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.verified, size: 14, color: prediction.confidenceColor),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${prediction.confidence.toStringAsFixed(1)}% Confidence',
+                            style: TextStyle(color: prediction.confidenceColor, fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ],
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Description
+          Text(
+            prediction.description,
+            style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.6),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Sections
+          _buildSection(
+            icon: Icons.warning_amber_rounded,
+            title: 'Symptoms',
+            items: prediction.symptoms,
+            color: AppColors.warning,
+          ),
+          
+          const SizedBox(height: 20),
+          
+          _buildSection(
+            icon: Icons.medication_outlined,
+            title: 'Treatments',
+            items: prediction.treatments,
+            color: AppColors.info,
+          ),
+          
+          const SizedBox(height: 20),
+          
+          _buildSection(
+            icon: Icons.home_outlined,
+            title: 'Home Care',
+            items: prediction.homecare,
+            color: AppColors.success,
+          ),
+          
+          // Note
+          if (prediction.note.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.lightbulb_outline, color: AppColors.accent, size: 18),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Important Note',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 14),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          prediction.note,
+                          style: const TextStyle(fontSize: 14, color: AppColors.text, height: 1.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -88,31 +157,64 @@ class ResultCard extends StatelessWidget {
     required List<String> items,
     required Color color,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(left: 28, bottom: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('• ', style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
-                  Expanded(child: Text(item, style: TextStyle(fontSize: 14, color: Colors.grey.shade700))),
-                ],
+    if (items.isEmpty) return const SizedBox.shrink();
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 16, color: color),
               ),
-            )),
-      ],
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          // Items
+          ...items.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 6),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: const TextStyle(fontSize: 14, color: AppColors.text, height: 1.5),
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ),
     );
   }
 }

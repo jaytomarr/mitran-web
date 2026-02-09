@@ -7,10 +7,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/providers.dart';
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
-import '../services/auth_service.dart';
 import '../services/session_manager.dart';
 import '../services/chatbot_api.dart';
 import '../widgets/design_system.dart';
+import '../widgets/navbar.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -41,7 +41,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
     if (result != null && result.files.single.bytes != null) {
       setState(() {
         _imageBytes = result.files.single.bytes;
-        
       });
     }
   }
@@ -95,85 +94,122 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
     final profile = ref.watch(userProfileProvider(uid));
     final myPosts = ref.watch(userPostsProvider(uid));
     final myDogs = ref.watch(userDogsProvider(uid));
+    
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: _ProfileNavBar(),
-      ),
+      appBar: const NavBar(),
+      backgroundColor: const Color(0xFFF8F7FC),
       body: profile.when(
         data: (p) {
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ResponsiveContainer(
-                  maxWidth: 1000,
-                  child: GradientBorderCard(
-                    child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    CircleAvatar(
-                      radius: 36,
-                      foregroundImage: p.profilePictureUrl.isNotEmpty ? NetworkImage(p.profilePictureUrl) : null,
-                      child: Text(p.username.isNotEmpty ? p.username[0].toUpperCase() : '?'),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
+                    // Profile Header Card
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(p.username, style: Theme.of(context).textTheme.titleLarge, overflow: TextOverflow.ellipsis),
-                          const SizedBox(height: 4),
-                          Text('Email: ${p.email}', overflow: TextOverflow.ellipsis),
-                          Text('Phone: ${p.contactInfo.phone}', overflow: TextOverflow.ellipsis),
-                          Text('City: ${p.city}', overflow: TextOverflow.ellipsis),
-                          Text('Area: ${p.area}', overflow: TextOverflow.ellipsis),
-                          Text('Type: ${p.userType}', overflow: TextOverflow.ellipsis),
+                          // Avatar
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: AppGradients.primary,
+                            ),
+                            child: p.profilePictureUrl.isNotEmpty
+                                ? ClipOval(child: Image.network(p.profilePictureUrl, fit: BoxFit.cover))
+                                : Center(
+                                    child: Text(
+                                      p.username.isNotEmpty ? p.username[0].toUpperCase() : '?',
+                                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(p.username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.text)),
+                                const SizedBox(height: 8),
+                                _InfoRow(icon: Icons.email_outlined, text: p.email),
+                                _InfoRow(icon: Icons.phone_outlined, text: p.contactInfo.phone),
+                                const SizedBox(height: 12),
+                                Wrap(spacing: 8, runSpacing: 8, children: [
+                                  _Badge(text: p.city, color: AppColors.primary),
+                                  _Badge(text: p.area, color: AppColors.info),
+                                  _Badge(text: p.userType, color: AppColors.accent),
+                                ]),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => _showEditor(context, p),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                            ),
+                            child: const Text('Edit'),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    OutlineButtonX(text: 'Edit Profile', onPressed: () => _showEditor(context, p)),
-                    const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: () async {
-                        try {
-                          SessionManager(ChatbotApi()).clearSession();
-                        } catch (_) {}
-                        try {
-                          final router = GoRouter.of(context);
-                          await AuthService().signOut();
-                          router.go('/');
-                        } catch (_) {}
-                      },
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                      child: const Text('Logout'),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Tabs Card
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        children: [
+                          TabBar(
+                            controller: _tabController,
+                            labelColor: AppColors.primary,
+                            unselectedLabelColor: AppColors.textSecondary,
+                            indicatorColor: AppColors.primary,
+                            indicatorSize: TabBarIndicatorSize.label,
+                            tabs: const [
+                              Tab(text: 'My Posts'),
+                              Tab(text: 'My Mitrans'),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 400,
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                _buildPostsTab(myPosts),
+                                _buildDogsTab(myDogs),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                  ),
-                ),
               ),
-              TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'My Posts'),
-                  Tab(text: 'My Mitrans'),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildPostsTab(myPosts),
-                    _buildDogsTab(myDogs),
-                  ],
-                ),
-              ),
-            ],
+            ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text(e.toString())),
       ),
     );
@@ -182,16 +218,53 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
   Widget _buildPostsTab(AsyncValue<List<dynamic>> posts) {
     return posts.when(
       data: (items) {
-        if (items.isEmpty) return const Center(child: Text("You haven't posted anything yet"));
+        if (items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.forum_outlined, size: 40, color: AppColors.textSecondary.withOpacity(0.4)),
+                const SizedBox(height: 12),
+                const Text("You haven't posted anything yet", style: TextStyle(color: AppColors.textSecondary)),
+              ],
+            ),
+          );
+        }
         return ListView.builder(
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
           itemBuilder: (context, index) {
             final p = items[index];
-            return ListTile(title: Text(p.author.username), subtitle: Text(p.content));
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F7FC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: AppColors.primary,
+                        child: Text(p.author.username.isNotEmpty ? p.author.username[0].toUpperCase() : '?', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(p.author.username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(p.content, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.textSecondary)),
+                ],
+              ),
+            );
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
       error: (e, _) => Center(child: Text(e.toString())),
     );
   }
@@ -199,16 +272,63 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
   Widget _buildDogsTab(AsyncValue<List<dynamic>> dogs) {
     return dogs.when(
       data: (items) {
-        if (items.isEmpty) return const Center(child: Text("You haven't added any dogs yet"));
+        if (items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.pets, size: 40, color: AppColors.textSecondary.withOpacity(0.4)),
+                const SizedBox(height: 12),
+                const Text("You haven't added any dogs yet", style: TextStyle(color: AppColors.textSecondary)),
+              ],
+            ),
+          );
+        }
         return ListView.builder(
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
           itemBuilder: (context, index) {
             final d = items[index];
-            return ListTile(title: Text(d.name), subtitle: Text(d.area));
+            return InkWell(
+              onTap: () => context.go('/directory/${d.dogId}'),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F7FC),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.pets, color: AppColors.primary, size: 20),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(d.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text(d.area, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textSecondary),
+                  ],
+                ),
+              ),
+            );
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
       error: (e, _) => Center(child: Text(e.toString())),
     );
   }
@@ -225,29 +345,37 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
       barrierDismissible: true,
       builder: (_) {
         return AlertDialog(
-          title: const Text('Edit Profile'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
           content: SizedBox(
-            width: 500,
+            width: 450,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppFormTextField(controller: _usernameController, labelText: 'Username'),
-                  const SizedBox(height: 8),
-                  Row(children: [
-                    AccentButton(text: 'Upload New Picture', onPressed: _pickImage),
-                  ]),
-                  const SizedBox(height: 8),
-                  AppFormTextField(controller: _phoneController, labelText: 'Contact Phone'),
-                  if (_error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_error!, style: const TextStyle(color: Colors.red))),
-                  const SizedBox(height: 8),
-                  AppFormTextField(controller: _cityController, labelText: 'City'),
-                  const SizedBox(height: 8),
-                  AppFormTextField(controller: _areaController, labelText: 'Area'),
-                  const SizedBox(height: 8),
+                  _FormField(controller: _usernameController, label: 'Username'),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.upload, size: 18),
+                    label: const Text('Upload New Picture'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _FormField(controller: _phoneController, label: 'Contact Phone'),
+                  if (_error != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_error!, style: const TextStyle(color: AppColors.error))),
+                  const SizedBox(height: 16),
+                  _FormField(controller: _cityController, label: 'City'),
+                  const SizedBox(height: 16),
+                  _FormField(controller: _areaController, label: 'Area'),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    initialValue: _userType,
+                    value: _userType,
                     items: const [
                       DropdownMenuItem(value: 'Volunteer', child: Text('Volunteer')),
                       DropdownMenuItem(value: 'Feeder', child: Text('Feeder')),
@@ -256,7 +384,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                       DropdownMenuItem(value: 'Other', child: Text('Other')),
                     ],
                     onChanged: (v) => setState(() => _userType = v ?? 'Volunteer'),
-                    decoration: const InputDecoration(labelText: 'User Type'),
+                    decoration: InputDecoration(
+                      labelText: 'User Type',
+                      filled: true,
+                      fillColor: const Color(0xFFF8F7FC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
                   ),
                 ],
               ),
@@ -265,14 +398,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
           actions: [
             TextButton(
               onPressed: () {
-                setState(() {
-                  _imageBytes = null;
-                });
+                setState(() => _imageBytes = null);
                 Navigator.of(context).pop();
               },
               child: const Text('Cancel'),
             ),
-            GradientButton(text: 'Save Changes', onPressed: _loading ? null : () => _save(context, current), loading: _loading),
+            ElevatedButton(
+              onPressed: _loading ? null : () => _save(context, current),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+              ),
+              child: _loading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Save'),
+            ),
           ],
         );
       },
@@ -280,18 +419,60 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
   }
 }
 
-class _ProfileNavBar extends StatelessWidget {
-  const _ProfileNavBar();
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InfoRow({required this.icon, required this.text});
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      title: const Text('My Guardian Profile'),
-      actions: [
-        TextButton(onPressed: () => context.go('/hub'), child: const Text('The Mitran Hub')),
-        TextButton(onPressed: () => context.go('/directory'), child: const Text('Mitran Directory')),
-        TextButton(onPressed: () => context.go('/ai-care'), child: const Text('Mitran AI Care')),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(children: [
+        Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 8),
-      ],
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String text;
+  final Color color;
+  const _Badge({required this.text, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Text(text, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+    );
+  }
+}
+
+class _FormField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  const _FormField({required this.controller, required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: const Color(0xFFF8F7FC),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      ),
     );
   }
 }

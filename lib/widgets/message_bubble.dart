@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/message.dart';
+import 'design_system.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -18,23 +19,28 @@ class MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (message.isAssistant) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.blue.shade100,
-              child: const Icon(Icons.smart_toy, size: 18, color: Colors.blue),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: AppGradients.primary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.smart_toy, size: 18, color: Colors.white),
             ),
             const SizedBox(width: 8),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: message.isUser ? const Color(0xFF007AFF) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                gradient: message.isUser ? AppGradients.primary : null,
+                color: message.isUser ? null : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: message.isUser ? null : Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -45,8 +51,9 @@ class MessageBubble extends StatelessWidget {
                   Text(
                     message.text,
                     style: TextStyle(
-                      color: message.isUser ? Colors.white : Colors.black87,
-                      fontSize: 16,
+                      color: message.isUser ? Colors.white : AppColors.text,
+                      fontSize: 15,
+                      height: 1.4,
                     ),
                   ),
                   if (message.isStreaming)
@@ -58,7 +65,7 @@ class MessageBubble extends StatelessWidget {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            message.isUser ? Colors.white : Colors.blue,
+                            message.isUser ? Colors.white : AppColors.primary,
                           ),
                         ),
                       ),
@@ -69,10 +76,13 @@ class MessageBubble extends StatelessWidget {
           ),
           if (message.isUser) ...[
             const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey.shade300,
-              child: const Icon(Icons.person, size: 18, color: Colors.grey),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.person, size: 18, color: AppColors.accent),
             ),
           ],
         ],

@@ -16,126 +16,444 @@ class DirectoryPage extends ConsumerWidget {
     final filters = ref.watch(dogFiltersProvider);
     return Scaffold(
       appBar: const NavBar(),
+      backgroundColor: const Color(0xFFF8F7FC),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: FadeSlideIn(
-                child: ResponsiveContainer(
-                  maxWidth: 1200,
-                  child: GradientBorderCard(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Page Header Card
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.border),
+                    ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppSearchField(
-                          hintText: 'Search by name, area, or Mitran ID',
-                          onChanged: (v) => ref.read(searchTermProvider.notifier).state = v,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.pets,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Mitran Directory',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  const Text(
+                                    'Find community dogs',
+                                    style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          SelectableChip(
-                            label: 'Vaccinated',
-                            selected: filters.vaccinated,
-                            onTap: () => ref.read(dogFiltersProvider.notifier).state = filters.copyWith(vaccinated: !filters.vaccinated),
+                        const SizedBox(height: 24),
+                        // Search
+                        TextField(
+                          onChanged: (v) =>
+                              ref.read(searchTermProvider.notifier).state = v,
+                          decoration: InputDecoration(
+                            hintText: 'Search by name, area, or Mitran ID',
+                            hintStyle: TextStyle(
+                              color: AppColors.textSecondary.withOpacity(0.6),
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: AppColors.textSecondary,
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF8F7FC),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                          SelectableChip(
-                            label: 'Sterilized',
-                            selected: filters.sterilized,
-                            onTap: () => ref.read(dogFiltersProvider.notifier).state = filters.copyWith(sterilized: !filters.sterilized),
-                          ),
-                          const SizedBox(width: 8),
-                          SelectableChip(
-                            label: 'Ready for Adoption',
-                            selected: filters.readyForAdoption,
-                            onTap: () => ref.read(dogFiltersProvider.notifier).state = filters.copyWith(readyForAdoption: !filters.readyForAdoption),
-                          ),
-                          const Spacer(),
-                          OutlineButtonX(
-                            text: 'Clear Filters',
-                            onPressed: () {
-                              ref.read(searchTermProvider.notifier).state = '';
-                              ref.read(dogFiltersProvider.notifier).state = const DogFilters(vaccinated: false, sterilized: false, readyForAdoption: false);
-                            },
-                          ),
-                        ]),
+                        ),
+                        const SizedBox(height: 16),
+                        // Filters
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _FilterChip(
+                              label: 'Vaccinated',
+                              selected: filters.vaccinated,
+                              onTap: () =>
+                                  ref
+                                      .read(dogFiltersProvider.notifier)
+                                      .state = filters.copyWith(
+                                    vaccinated: !filters.vaccinated,
+                                  ),
+                            ),
+                            _FilterChip(
+                              label: 'Sterilized',
+                              selected: filters.sterilized,
+                              onTap: () =>
+                                  ref
+                                      .read(dogFiltersProvider.notifier)
+                                      .state = filters.copyWith(
+                                    sterilized: !filters.sterilized,
+                                  ),
+                            ),
+                            _FilterChip(
+                              label: 'Ready for Adoption',
+                              selected: filters.readyForAdoption,
+                              onTap: () =>
+                                  ref
+                                      .read(dogFiltersProvider.notifier)
+                                      .state = filters.copyWith(
+                                    readyForAdoption: !filters.readyForAdoption,
+                                  ),
+                            ),
+                            if (filters.vaccinated ||
+                                filters.sterilized ||
+                                filters.readyForAdoption)
+                              TextButton.icon(
+                                onPressed: () {
+                                  ref.read(searchTermProvider.notifier).state =
+                                      '';
+                                  ref
+                                      .read(dogFiltersProvider.notifier)
+                                      .state = const DogFilters(
+                                    vaccinated: false,
+                                    sterilized: false,
+                                    readyForAdoption: false,
+                                  );
+                                },
+                                icon: const Icon(Icons.clear, size: 16),
+                                label: const Text('Clear all'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.textSecondary,
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: FadeSlideIn(
-                child: ResponsiveContainer(
-                  maxWidth: 1200,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      int crossAxisCount = 4;
-                      final w = constraints.maxWidth;
-                      if (w < 600) {
-                        crossAxisCount = 1;
-                      } else if (w < 900) {
-                        crossAxisCount = 2;
-                      } else if (w < 1200) {
-                        crossAxisCount = 3;
-                      }
-                      return GridView.builder(
-                        padding: const EdgeInsets.all(16),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 3/4,
+
+                  const SizedBox(height: 24),
+
+                  // Dogs Grid
+                  dogs.isEmpty
+                      ? Container(
+                          padding: const EdgeInsets.all(48),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.pets,
+                                size: 48,
+                                color: AppColors.textSecondary.withOpacity(0.4),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No dogs found',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Try adjusting your filters',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            int crossAxisCount = 4;
+                            double aspectRatio = 0.75;
+                            final w = constraints.maxWidth;
+                            if (w < 500) {
+                              crossAxisCount = 2;
+                              aspectRatio = 0.65;
+                            } else if (w < 750) {
+                              crossAxisCount = 2;
+                              aspectRatio = 0.75;
+                            } else if (w < 1000) {
+                              crossAxisCount = 3;
+                            }
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossAxisCount,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: aspectRatio,
+                                  ),
+                              itemCount: dogs.length,
+                              itemBuilder: (context, index) {
+                                final d = dogs[index];
+                                return _DogCard(
+                                  dog: d,
+                                  onTap: () =>
+                                      context.go('/directory/${d.dogId}'),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        itemCount: dogs.length,
-                        itemBuilder: (context, index) {
-                          final d = dogs[index];
-                          return _DogCard(dog: d, onTap: () => context.go('/directory/${d.dogId}'));
-                        },
-                      );
-                    },
-                  ),
-                ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _DogCard extends StatelessWidget {
-  final DogModel dog;
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
-  const _DogCard({required this.dog, required this.onTap});
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: GradientBorderCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: dog.mainPhotoUrl.isNotEmpty
-                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(dog.mainPhotoUrl, width: double.infinity, fit: BoxFit.cover))
-                  : Container(height: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(12))),
-            ),
-            const SizedBox(height: 8),
-            Text(dog.name.isNotEmpty ? dog.name : 'Unknown', style: Theme.of(context).textTheme.titleMedium, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 4),
-            Text(dog.area, overflow: TextOverflow.ellipsis),
-            const SizedBox(height: 8),
-            Wrap(spacing: 8, runSpacing: 4, children: [
-              if (dog.vaccinationStatus) const StatusBadge(text: 'Vaccinated', color: AppColors.success),
-              if (dog.sterilizationStatus) const StatusBadge(text: 'Sterilized', color: AppColors.info),
-              if (dog.readyForAdoption) const StatusBadge(text: 'Ready for Adoption', color: AppColors.secondary),
-            ]),
-          ],
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+          ),
         ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.white : AppColors.text,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DogCard extends StatefulWidget {
+  final DogModel dog;
+  final VoidCallback onTap;
+  const _DogCard({required this.dog, required this.onTap});
+
+  @override
+  State<_DogCard> createState() => _DogCardState();
+}
+
+class _DogCardState extends State<_DogCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: Matrix4.identity()
+            ..translate(0.0, _isHovered ? -4.0 : 0.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _isHovered ? AppColors.primary : AppColors.border,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _isHovered
+                    ? AppColors.primary.withOpacity(0.12)
+                    : Colors.black.withOpacity(0.04),
+                blurRadius: _isHovered ? 16 : 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image
+              Expanded(
+                flex: 3,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8F7FC),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: widget.dog.mainPhotoUrl.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                          child: Image.network(
+                            widget.dog.mainPhotoUrl,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.pets,
+                            size: 40,
+                            color: AppColors.textSecondary.withOpacity(0.3),
+                          ),
+                        ),
+                ),
+              ),
+              // Info
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.dog.name.isNotEmpty
+                            ? widget.dog.name
+                            : 'Unknown',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: AppColors.text,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            size: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              widget.dog.area,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          if (widget.dog.vaccinationStatus)
+                            _IconChip(
+                              icon: Icons.vaccines,
+                              color: AppColors.success,
+                              tooltip: 'Vaccinated',
+                            ),
+                          if (widget.dog.sterilizationStatus)
+                            _IconChip(
+                              icon: Icons.medical_services,
+                              color: AppColors.info,
+                              tooltip: 'Sterilized',
+                            ),
+                          if (widget.dog.readyForAdoption)
+                            _IconChip(
+                              icon: Icons.favorite,
+                              color: AppColors.accent,
+                              tooltip: 'Ready for Adoption',
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IconChip extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+  const _IconChip({
+    required this.icon,
+    required this.color,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 14, color: color),
       ),
     );
   }

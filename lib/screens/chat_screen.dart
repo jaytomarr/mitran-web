@@ -6,6 +6,7 @@ import '../services/session_manager.dart';
 import '../services/stream_service.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/chat_input.dart';
+import '../widgets/design_system.dart';
 
 class ChatScreen extends StatefulWidget {
   final bool embedded;
@@ -231,15 +232,28 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
-            color: Colors.red.shade100,
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.error.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+            ),
             child: Row(
               children: [
-                const Icon(Icons.error, color: Colors.red, size: 20),
+                const Icon(Icons.error_outline, color: AppColors.error, size: 20),
                 const SizedBox(width: 8),
-                Expanded(child: Text(_error, style: const TextStyle(color: Colors.red))),
+                Expanded(child: Text(_error, style: const TextStyle(color: AppColors.error))),
                 if (_pendingText != null)
-                  TextButton(onPressed: _resendNonStream, child: const Text('Resend')),
-                TextButton(onPressed: _initFromLocal, child: const Text('New Session')),
+                  TextButton(
+                    onPressed: _resendNonStream, 
+                    style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                    child: const Text('Resend'),
+                  ),
+                TextButton(
+                  onPressed: _initFromLocal, 
+                  style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                  child: const Text('New Session'),
+                ),
               ],
             ),
           ),
@@ -251,33 +265,63 @@ class _ChatScreenState extends State<ChatScreen> {
         header,
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
               : _sessionId == null
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey.shade400),
-                          const SizedBox(height: 16),
-                          ElevatedButton(onPressed: _createSession, child: const Text('Create Session')),
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.chat_bubble_outline, size: 48, color: Colors.white),
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Start a conversation',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.text),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Ask about dog health, behavior, or nutrition',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                          const SizedBox(height: 24),
+                          GradientButton(
+                            text: 'Start Chat',
+                            onPressed: _createSession,
+                          ),
                         ],
                       ),
                     )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        return MessageBubble(message: _messages[index]);
-                      },
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          return MessageBubble(message: _messages[index]);
+                        },
+                      ),
                     ),
         ),
         if (!_isLoading && _sessionId != null)
-          ChatInput(
-            controller: _inputController,
-            onSend: _sendMessage,
-            enabled: !_isStreaming,
-            isStreaming: _isStreaming,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ChatInput(
+              controller: _inputController,
+              onSend: _sendMessage,
+              enabled: !_isStreaming,
+              isStreaming: _isStreaming,
+            ),
           ),
       ],
     );
@@ -285,11 +329,12 @@ class _ChatScreenState extends State<ChatScreen> {
     if (widget.embedded) return body;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('AI Chatbot'),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.text,
         elevation: 0,
       ),
       body: body,

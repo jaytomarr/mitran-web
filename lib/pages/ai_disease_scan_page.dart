@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/navbar.dart';
+import '../widgets/design_system.dart';
 import 'dart:typed_data';
 import '../models/prediction.dart';
 import '../services/disease_api.dart';
@@ -96,108 +98,166 @@ class _AiDiseaseScanPageState extends State<AiDiseaseScanPage> {
     }
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const NavBar(),
+      backgroundColor: const Color(0xFFF8F7FC),
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1040),
+              constraints: const BoxConstraints(maxWidth: 900),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-            if (!_isApiReady)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                color: Colors.orange.shade100,
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning, color: Colors.orange, size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'AI system is initializing. Please wait...',
-                        style: TextStyle(color: Colors.orange),
-                      ),
-                    ),
-                    TextButton(onPressed: _checkApiHealth, child: const Text('Retry')),
-                  ],
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('AI Disease Scan', style: Theme.of(context).textTheme.displaySmall),
-                  const SizedBox(height: 8),
-                  Text('Worried about a skin condition? Upload a photo to get a preliminary analysis.', style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(height: 4),
-                  Text('This is not a substitute for a vet.', style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
-            ),
-            if (_error != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                color: Colors.red.shade100,
-                child: Row(
-                  children: [
-                    const Icon(Icons.error, color: Colors.red, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Card(
-                elevation: 12,
-                shadowColor: Colors.black.withOpacity(0.25),
-                surfaceTintColor: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: ImagePickerWidget(
-                    onImageSelected: _onImageSelected,
-                    onImageRemoved: _onImageRemoved,
-                    selectedImage: _selectedImageBytes,
+                  // Back Button
+                  _BackButton(
+                    label: 'Back to AI Care',
+                    onTap: () => context.go('/ai-care'),
                   ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (_selectedImageBytes != null)
-                    ElevatedButton(
-                      onPressed: (_isAnalyzing || !_isApiReady) ? null : _analyzeImage,
-                      child: Text(_isAnalyzing ? 'Analyzing…' : 'Analyze Image'),
+                  const SizedBox(height: 16),
+                  
+                  // API Warning
+                  if (!_isApiReady)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 20),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              'AI system is initializing. Please wait...',
+                              style: TextStyle(color: AppColors.warning),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _checkApiHealth, 
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
                     ),
+                  
+                  // Error Message
+                  if (_error != null)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.error))),
+                        ],
+                      ),
+                    ),
+                  
+                  // Image Picker Card
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ImagePickerWidget(
+                          onImageSelected: _onImageSelected,
+                          onImageRemoved: _onImageRemoved,
+                          selectedImage: _selectedImageBytes,
+                        ),
+                        if (_selectedImageBytes != null) ...[
+                          const SizedBox(height: 20),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: (_isAnalyzing || !_isApiReady) ? null : _analyzeImage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                              ),
+                              child: _isAnalyzing
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    )
+                                  : const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.search, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Analyze Image'),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  
+                  // Result Card
+                  if (_currentResult != null) ...[
+                    const SizedBox(height: 20),
+                    ResultCard(prediction: _currentResult!),
+                  ],
+                  
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
-            if (_currentResult != null) ResultCard(prediction: _currentResult!),
-            const SizedBox(height: 32),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BackButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _BackButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.arrow_back, size: 18, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
-    ),
-  ),
- ),
-);
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
+import 'design_system.dart';
 
 class ImagePickerWidget extends StatefulWidget {
   final Function(Uint8List bytes, String filename) onImageSelected;
@@ -58,30 +59,29 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           width: double.infinity,
           height: 300,
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border, width: 2, style: BorderStyle.solid),
           ),
           child: widget.selectedImage != null
               ? Stack(
                   fit: StackFit.expand,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       child: Image.memory(
                         widget.selectedImage!,
                         fit: BoxFit.contain,
                       ),
                     ),
                     Positioned(
-                      top: 8,
-                      right: 8,
+                      top: 12,
+                      right: 12,
                       child: IconButton(
                         onPressed: _removeImage,
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close, color: Colors.white),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
+                          backgroundColor: AppColors.error,
                         ),
                       ),
                     ),
@@ -89,29 +89,27 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                 )
               : InkWell(
                   onTap: _pickImage,
+                  borderRadius: BorderRadius.circular(16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.cloud_upload,
-                        size: 64,
-                        color: Colors.grey.shade400,
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.cloud_upload_outlined, size: 48, color: AppColors.primary),
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      const Text(
                         'Click to upload image',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey.shade600,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.text),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      const Text(
                         'PNG or JPEG • Max 5MB',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
+                        style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -119,25 +117,28 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         ),
         if (_error != null)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              _error!,
-              style: const TextStyle(color: Colors.red),
+            padding: const EdgeInsets.only(top: 12),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: AppColors.error, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.error))),
+                ],
+              ),
             ),
           ),
         if (widget.selectedImage == null)
           Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: ElevatedButton.icon(
+            padding: const EdgeInsets.only(top: 20),
+            child: AccentButton(
+              text: 'Choose Image',
               onPressed: _pickImage,
-              icon: const Icon(Icons.upload_file),
-              label: const Text('Choose Image'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-              ),
             ),
           ),
       ],
