@@ -1,12 +1,15 @@
 [
   {
     "origin": [
+      "https://www.mitran.live",
+      "https://mitran.live",
+      "https://mitran-web.vercel.app",
+      "http://localhost:3000",
       "http://localhost:5000",
-      "https://your-vercel-project.vercel.app",
-      "https://your-domain.com"
+      "http://localhost:*"
     ],
-    "method": ["GET", "OPTIONS"],
-    "responseHeader": ["Content-Type"],
+    "method": ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS"],
+    "responseHeader": ["Content-Type", "x-goog-resumable", "Access-Control-Allow-Origin", "Authorization"],
     "maxAgeSeconds": 3600
   }
 ]
