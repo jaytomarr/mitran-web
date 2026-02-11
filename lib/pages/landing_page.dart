@@ -364,7 +364,7 @@ class LandingPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '© 2024 Mitran - Jay Tomar & Deekshant Tilwani',
+                    '© 2025 Mitran - Jay Tomar & Deekshant Tilwani',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
